@@ -6,9 +6,11 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/lib/pq"
 	"github.com/pwh-pwh/rssagg/config"
+	"github.com/pwh-pwh/rssagg/scraper"
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 func main() {
@@ -29,6 +31,9 @@ func main() {
 	//Use router.Use to add the built-in cors.Handler middleware.
 	router.Use(cors.AllowAll().Handler)
 	Router(router)
+	const collectionConcurrency = 10
+	const collectionInterval = time.Second * 60
+	go scraper.StartScraping(collectionConcurrency, collectionInterval)
 	err = http.ListenAndServe(":"+portStr, router)
 	if err != nil {
 		return
