@@ -1,22 +1,15 @@
 package main
 
 import (
-	"database/sql"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/lib/pq"
-	"github.com/pwh-pwh/rssagg/internal/database"
+	"github.com/pwh-pwh/rssagg/config"
 	"log"
 	"net/http"
 	"os"
 )
-
-type apiConfig struct {
-	DB *database.Queries
-}
-
-var ApiConfig apiConfig
 
 func main() {
 	portStr := os.Getenv("PORT")
@@ -27,12 +20,10 @@ func main() {
 	if dbURL == "" {
 		log.Fatal("db url is null")
 	}
-	db, err := sql.Open("postgres", dbURL)
+	err := config.InitConfig(dbURL)
 	if err != nil {
-		log.Fatal("can not open db_url")
+		log.Fatal("init db err")
 	}
-	queries := database.New(db)
-	ApiConfig.DB = queries
 	//Create a chi.NewRouter
 	router := chi.NewRouter()
 	//Use router.Use to add the built-in cors.Handler middleware.
