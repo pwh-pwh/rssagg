@@ -21,7 +21,7 @@ func CreateUserHandler(writer http.ResponseWriter, request *http.Request) {
 	all, _ := ioutil.ReadAll(request.Body)
 	_ = json.Unmarshal(all, &body)
 	newUUID, _ := uuid.NewUUID()
-	var now time.Time
+	var now time.Time = time.Now()
 	user, err := config.Config.DB.CreateUser(context.Background(), database.CreateUserParams{
 		ID:        newUUID,
 		CreatedAt: now,

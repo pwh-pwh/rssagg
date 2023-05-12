@@ -29,5 +29,10 @@ func Router(router chi.Router) {
 			r.Post("/", middlewares.AuthMiddleware(handlers.CreateFeedsHandler))
 			r.Get("/", handlers.GetFeedsHandler)
 		})
+		r.Route("/feed_follows", func(r chi.Router) {
+			r.Post("/", middlewares.AuthMiddleware(handlers.CreateFeedFollowHandler))
+			r.Delete("/{feedFollowID}", middlewares.AuthMiddleware(handlers.DelFeedFollowHandler))
+			r.Get("/", middlewares.AuthMiddleware(handlers.GetAllFF4UserHandler))
+		})
 	})
 }

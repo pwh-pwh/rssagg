@@ -47,5 +47,23 @@ func CreateFeedsHandler(w http.ResponseWriter, r *http.Request, user database.Us
 		resp.RespondWithError(w, 500, err.Error())
 		return
 	}
-	resp.RespondWithJSON(w, 200, models.DbFeedToFeed(feed))
+	//create feed_follow
+	follow, err := config.Config.DB.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: now,
+		UpdatedAt: now,
+		UserID:    user.ID,
+		FeedID:    feed.ID,
+	})
+	if err != nil {
+		resp.RespondWithError(w, 500, err.Error())
+		return
+	}
+	resp.RespondWithJSON(w, 200, struct {
+		Feed       models.Feed       `json:"feed"`
+		FeedFollow models.FeedFollow `json:"feedFollow"`
+	}{
+		Feed:       models.DbFeedToFeed(feed),
+		FeedFollow: models.DbFF2FeedFollow(follow),
+	})
 }
