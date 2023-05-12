@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/pwh-pwh/rssagg/handlers"
+	"github.com/pwh-pwh/rssagg/middlewares"
 	"github.com/pwh-pwh/rssagg/resp"
 	"net/http"
 )
@@ -20,7 +21,12 @@ func Router(router chi.Router) {
 		r.Get("/err", func(writer http.ResponseWriter, request *http.Request) {
 			resp.RespondWithError(writer, 500, "Internal Server Error")
 		})
-		r.Post("/users", handlers.CreateUserHandler)
-		r.Get("/users", handlers.GetUserHandler)
+		r.Route("/users", func(r chi.Router) {
+			r.Post("/", handlers.CreateUserHandler)
+			r.Get("/", middlewares.AuthMiddleware(handlers.GetUserHandler))
+		})
+		r.Route("/feeds", func(r chi.Router) {
+			r.Post("/", middlewares.AuthMiddleware(handlers.CreateFeedsHandler))
+		})
 	})
 }
