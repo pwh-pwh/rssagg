@@ -2,7 +2,9 @@ package scraper
 
 import (
 	"context"
+	"database/sql"
 	"encoding/xml"
+	"github.com/google/uuid"
 	"github.com/pwh-pwh/rssagg/config"
 	"github.com/pwh-pwh/rssagg/internal/database"
 	"io"
@@ -62,7 +64,30 @@ func scrapeFeed(wg *sync.WaitGroup, feed database.Feed) {
 		return
 	}
 	for _, item := range feedData.Channel.Item {
-		log.Println("Found post", item.Title)
+		now := time.Now()
+		publishedAt := sql.NullTime{}
+		if t, err := time.Parse(time.RFC1123Z, item.PubDate); err == nil {
+			publishedAt = sql.NullTime{
+				Time:  t,
+				Valid: true,
+			}
+		}
+		_, _ = config.Config.DB.CreatePost(context.Background(), database.CreatePostParams{
+			ID:        uuid.New(),
+			CreatedAt: now,
+			UpdatedAt: now,
+			Title: sql.NullString{
+				String: item.Title,
+				Valid:  item.Title != "",
+			},
+			Url: item.Link,
+			Description: sql.NullString{
+				String: item.Description,
+				Valid:  item.Description != "",
+			},
+			PublishedAt: publishedAt.Time,
+			FeedID:      feed.ID,
+		})
 	}
 	log.Printf("Feed %s collected, %v posts found", feed.Name, len(feedData.Channel.Item))
 }

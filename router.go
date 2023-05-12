@@ -34,5 +34,6 @@ func Router(router chi.Router) {
 			r.Delete("/{feedFollowID}", middlewares.AuthMiddleware(handlers.DelFeedFollowHandler))
 			r.Get("/", middlewares.AuthMiddleware(handlers.GetAllFF4UserHandler))
 		})
+		r.Get("/posts", middlewares.AuthMiddleware(handlers.GetPostsLimit))
 	})
 }
