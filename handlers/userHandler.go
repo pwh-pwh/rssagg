@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/pwh-pwh/rssagg/config"
+	"github.com/pwh-pwh/rssagg/internal/auth"
 	"github.com/pwh-pwh/rssagg/internal/database"
+	"github.com/pwh-pwh/rssagg/models"
 	"github.com/pwh-pwh/rssagg/resp"
 	"io/ioutil"
 	"net/http"
@@ -30,5 +32,19 @@ func CreateUserHandler(writer http.ResponseWriter, request *http.Request) {
 	if err != nil {
 		resp.RespondWithError(writer, 500, err.Error())
 	}
-	resp.RespondWithJSON(writer, 200, user)
+	resp.RespondWithJSON(writer, 200, models.DatabaseUserToUser(user))
+}
+
+func GetUserHandler(w http.ResponseWriter, req *http.Request) {
+	apiKey, err := auth.GetAPIKey(req.Header)
+	if err != nil {
+		resp.RespondWithError(w, http.StatusUnauthorized, "Couldn't find api key")
+		return
+	}
+	user, err := config.Config.DB.GetUserByApiKey(context.Background(), apiKey)
+	if err != nil {
+		resp.RespondWithError(w, 400, "api_key err")
+		return
+	}
+	resp.RespondWithJSON(w, 200, models.DatabaseUserToUser(user))
 }

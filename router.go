@@ -21,5 +21,6 @@ func Router(router chi.Router) {
 			resp.RespondWithError(writer, 500, "Internal Server Error")
 		})
 		r.Post("/users", handlers.CreateUserHandler)
+		r.Get("/users", handlers.GetUserHandler)
 	})
 }
