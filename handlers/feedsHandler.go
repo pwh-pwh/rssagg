@@ -13,6 +13,15 @@ import (
 	"time"
 )
 
+func GetFeedsHandler(w http.ResponseWriter, r *http.Request) {
+	feeds, err := config.Config.DB.GetFeeds(context.Background())
+	if err != nil {
+		resp.RespondWithError(w, 500, err.Error())
+		return
+	}
+	resp.RespondWithJSON(w, 200, models.DbFeedsToFeeds(feeds))
+}
+
 func CreateFeedsHandler(w http.ResponseWriter, r *http.Request, user database.User) {
 	type FeedsReqBody struct {
 		Name string `json:"name"`

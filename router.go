@@ -27,6 +27,7 @@ func Router(router chi.Router) {
 		})
 		r.Route("/feeds", func(r chi.Router) {
 			r.Post("/", middlewares.AuthMiddleware(handlers.CreateFeedsHandler))
+			r.Get("/", handlers.GetFeedsHandler)
 		})
 	})
 }
